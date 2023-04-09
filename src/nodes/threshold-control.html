@@ -1,0 +1,93 @@
+<script type="text/javascript">
+    RED.nodes.registerType('threshold-control',{
+        category: 'Victron Energy',
+        paletteLabel: 'Threshold control',
+        color: '#f7ab3e',
+        defaults: {
+            name: {value: ""},
+            onThreshold: {value: "", validate:RED.validators.number()},
+            offThreshold: {valude: "", validate:RED.validators.number()},
+            onDelay: {valude: "", validate:RED.validators.number()},
+            offDelay: {valude: "", validate:RED.validators.number()}        },
+        inputs: 1,
+        outputs: 2,
+        icon: "victronenergy.svg",
+        label: function() {
+            return this.name||"Threshold control";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="threshold-control">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-onThreshold"><i class="fa fa-id-card"></i> On threshold</label>
+        <input type="text" id="node-input-onThreshold" placeholder="ON threshold" required>
+    </div>
+    <div class="form-row">
+        <label for="node-input-offThreshold"><i class="fa fa-id-card"></i> Off threshold</label>
+        <input type="text" id="node-input-offThreshold" placeholder="OFF threshold" required>
+    </div>
+    <div class="form-row">
+        <label for="node-input-onDelay"><i class="fa fa-id-card"></i> On delay</label>
+        <input type="text" id="node-input-onDelay" placeholder="ON delay" required>
+    </div>
+    <div class="form-row">
+        <label for="node-input-offDelay"><i class="fa fa-id-card"></i> Off delay</label>
+        <input type="text" id="node-input-offDelay" placeholder="OFF delay" required>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="threshold-control">
+  <p>With the treshold control you can enable or disable a delayed output when the input
+    passes the or or off threshold. 
+  </p>
+
+  <h3>Configuration</h3>
+
+  <p>There are a few values that need configuration before the node can be used:</p>
+
+  <ul>
+    <li>On threshold - As soon as this threshold gets passed by <tt>msg.payload</tt>, the <i>onDelay</i> counter counts down to zero. If that hass passed, a "on" <tt>msg.payload</tt> gets send to the first output.</i></li>
+    <li>Off threshold - As soon as this threshold gets passed by <tt>msg.payload</tt>, the <i>offDelay</i> counter counts down to zero. If that hass passed, a "off" <tt>msg.payload</tt> gets send to the first output.</i></li>
+    <li>On delay - the delay in seconds that is waited before the output gets send after the input passes the on threshold.</li>
+    <li>Off delay - the delay in seconds that is waited before the output gets send after the input passes the off threshold.</li>
+  </ul>
+
+  <p>The on threshold should be higher than the off threshold.</p>
+
+  <h3>Input</h3>
+
+  <p>By default the node listens to <tt>msg.payload</tt> as input.</p>
+
+  <p>It also listens to different messages, which can change the configured values:</p>
+
+  <ul>
+    <li><tt>msg.onThreshold</tt> - The on threshold</li>
+    <li><tt>msg.offThreshold</tt> - The off threshold</li>
+    <li><tt>msg.onDelay</tt> - The on delay in seconds</li>
+    <li><tt>msg.offDelay</tt> - The off delay in seconds</li>
+  </ul>
+
+  <h3>Outputs</h3>
+
+  <p>There ar two outputs. The first one just gives "on" or "off" (after the delay has passed).</p>
+
+  <p>The second output gives some more information, but not on the <tt>msg.payload</tt>. The 
+interesting information is on:</p>
+
+<ul>
+    <li><tt>msg.counter</tt> - the state of the on/off counter</li>
+    <li><tt>msg.desiredState</tt> - the state the node will change to after the countdown has ended</li>
+</ul>
+
+  <h3>Status</h3>
+
+  <p>The status node tries to show the current state. It can turn red on wrong input and on the "off" state,
+    green on the "on" state and yellow when the on or off counter is running. 
+  </p>
+
+</script>
