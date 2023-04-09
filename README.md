@@ -1,7 +1,7 @@
 # Threshold control
 
 With the treshold control you can enable or disable a delayed output when the input
-passes the or or off threshold. 
+passes the on or off threshold. 
 
 ## Configuration
 
