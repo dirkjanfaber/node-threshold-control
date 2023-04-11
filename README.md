@@ -1,3 +1,12 @@
+[![Platform](https://img.shields.io/badge/platform-Node--RED-red)](https://nodered.org)
+[![NPM](https://img.shields.io/npm/v/node-threshold-control?logo=npm)](https://www.npmjs.org/package/node-threshold-control)
+[![Known Vulnerabilities](https://snyk.io/test/npm/node-threshold-control/badge.svg)](https://snyk.io/test/npm/node-threshold-control)
+[![Downloads](https://img.shields.io/npm/dm/node-threshold-control.svg)](https://www.npmjs.com/package/node-threshold-control)
+[![Total Downloads](https://img.shields.io/npm/dt/node-threshold-control.svg)](https://www.npmjs.com/package/node-threshold-control)
+[![Package Quality](http://npm.packagequality.com/shield/node-threshold-control.png)](http://packagequality.com/#?package=node-threshold-control)
+[![Open Issues](https://img.shields.io/github/issues-raw/dirkjanfaber/node-threshold-control.svg)](https://github.com/dirkjanfaber/node-threshold-control/issues)
+[![Closed Issues](https://img.shields.io/github/issues-closed-raw/windkh/node-red-contrib-shelly.svg)](https://github.com/dirkjanfaber/node-threshold-control/issues?q=is%3Aissue+is%3Aclosed)
+
 # Threshold control
 
 With the treshold control you can enable or disable a delayed output when the input
