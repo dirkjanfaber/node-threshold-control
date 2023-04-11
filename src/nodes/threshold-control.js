@@ -23,13 +23,13 @@ module.exports = function (RED) {
           node.status({
             fill: 'yellow',
             shape: 'dot',
-            text: `Switching in ${counter} sec`
+            text: `Switching ${desiredState} in ${counter} sec`
           })
         } else {
           node.status({
             fill: 'yellow',
             shape: 'ring',
-            text: `Switching in ${counter} sec`
+            text: `Switching ${desiredState} in ${counter} sec`
           })
         }
         if (desiredState === 'on') {
