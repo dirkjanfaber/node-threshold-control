@@ -12,32 +12,38 @@ module.exports = function (RED) {
     let State = desiredState
     let fill = 'yellow'
 
-    let onThreshold = config.onThreshold
-    let offThreshold = config.offThreshold
-    let onDelay = config.onDelay
-    let offDelay = config.offDelay
+    let onThreshold = Number(config.onThreshold)
+    let offThreshold = Number(config.offThreshold)
+    let onDelay = Number(config.onDelay)
+    let offDelay = Number(config.offDelay)
 
-    var intervalId = setInterval(function() {
+    const intervalId = setInterval(function () {
       if (countDown) {
         if (counter % 2 === 0) {
-          node.status({fill: 'yellow', shape: 'dot', text: `Switching in ${counter} sec`})
+          node.status({
+            fill: 'yellow',
+            shape: 'dot',
+            text: `Switching in ${counter} sec`
+          })
         } else {
-          node.status({fill: 'yellow', shape: 'ring', text: `Switching in ${counter} sec`})
+          node.status({
+            fill: 'yellow',
+            shape: 'ring',
+            text: `Switching in ${counter} sec`
+          })
         }
-        node.send([null,{
-          counter: counter, 
-          desiredState: desiredState, 
-          onThreshold: onThreshold,
-          offThreshold: offThreshold,
-          onDelay: onDelay,
-          offDelay: offDelay}])
-        if (counter > 0 ) {
+        if (desiredState === 'on') {
+          node.send([null, { counter }, null])
+        } else {
+          node.send([null, null, { counter }])
+        }
+        if (counter > 0) {
           counter--
         } else {
           sendOutput = true
         }
         if (sendOutput) {
-          node.send({payload: desiredState});
+          node.send({ payload: desiredState })
           sendOutput = false
           countDown = false
           if (desiredState === 'on') {
@@ -46,14 +52,17 @@ module.exports = function (RED) {
           if (desiredState === 'off') {
             fill = 'red'
           }
-          node.status({fill: fill, shape: 'dot', text: `${desiredState}`})
+          node.status({
+            fill,
+            shape: 'dot',
+            text: `${desiredState}`
+          })
           State = desiredState
         }
       }
-    }, 1000);
+    }, 1000)
 
     node.on('input', function (msg) {
-
       if (msg.onThreshold && Number(msg.onThreshold)) {
         onThreshold = msg.onThreshold
       }
@@ -71,7 +80,11 @@ module.exports = function (RED) {
       }
 
       if (msg.payload && !Number(msg.payload)) {
-        node.status({fill: 'red', shape: 'dot', text: 'Non-numerical input'})
+        node.status({
+          fill: 'red',
+          shape: 'dot',
+          text: 'Non-numerical input'
+        })
         return
       }
 
@@ -86,14 +99,7 @@ module.exports = function (RED) {
       }
 
       if (State === 'unknown') {
-        if (msg.payload >= onThreshold) {
-          State = 'on'
-        }
-        if (msg.payload <= offThreshold) {
-          State = 'off'
-        }
-        node.status({fill: 'blue', shape: 'dot', text: `${State}`})    
-
+        fill = 'blue'
       }
 
       msg.topic = 'Threshold control'
@@ -102,31 +108,31 @@ module.exports = function (RED) {
         desiredState = State
         countDown = false
         counter = 0
-        node.status({fill: fill, shape: 'dot', text: `${desiredState}`})    
       }
 
-      if (countDown && desiredState == 'off' && msg.payload > offThreshold) {
+      if (countDown && desiredState === 'off' && msg.payload > offThreshold) {
         desiredState = State
         countDown = false
         counter = 0
-        node.status({fill: fill, shape: 'dot', text: `${desiredState}`})    
       }
+
+      node.status({ fill, shape: 'dot', text: `${desiredState}` })
 
       if (msg.payload >= onThreshold && desiredState !== 'on' && counter === 0) {
         desiredState = 'on'
         counter = onDelay
-        countDown = true;
+        countDown = true
       }
 
       if (msg.payload <= offThreshold && desiredState !== 'off' && counter === 0) {
         desiredState = 'off'
         counter = offDelay
-        countDown = true;
+        countDown = true
       }
     })
 
     node.on('close', function () {
-      clearInterval(intervalId);
+      clearInterval(intervalId)
     })
 
     if (config.verbose) {

@@ -1,4 +1,16 @@
 <script type="text/javascript">
+
+    function isPositive(value) {
+      return value >= 0;
+    }
+
+    function validatePositiveNumber(value) {
+      if (isNaN(value)) {
+        return false;
+      }
+      return isPositive(Number(value));
+    }
+
     RED.nodes.registerType('threshold-control',{
         category: 'Victron Energy',
         paletteLabel: 'Threshold control',
@@ -6,11 +18,12 @@
         defaults: {
             name: {value: ""},
             onThreshold: {value: "", validate:RED.validators.number()},
-            offThreshold: {valude: "", validate:RED.validators.number()},
-            onDelay: {valude: "", validate:RED.validators.number()},
-            offDelay: {valude: "", validate:RED.validators.number()}        },
+            offThreshold: {value: "", validate:RED.validators.number()},
+            onDelay: {value: 5, validate:validatePositiveNumber},
+            offDelay: {value: 5, validate:validatePositiveNumber}
+        },
         inputs: 1,
-        outputs: 2,
+        outputs: 3,
         icon: "victronenergy.svg",
         label: function() {
             return this.name||"Threshold control";
@@ -74,20 +87,21 @@
 
   <h3>Outputs</h3>
 
-  <p>There ar two outputs. The first one just gives "on" or "off" (after the delay has passed).</p>
+  <p>There ar three outputs. The first one just gives "on" or "off" (after the delay has passed).</p>
 
-  <p>The second output gives some more information, but not on the <tt>msg.payload</tt>. The 
-interesting information is on:</p>
+  <p>The second output gives the state of the counter for the on delay.</p>
 
-<ul>
-    <li><tt>msg.counter</tt> - the state of the on/off counter</li>
-    <li><tt>msg.desiredState</tt> - the state the node will change to after the countdown has ended</li>
-</ul>
+  <p>The third output gives the state of the couter for the off delay.</p>
 
   <h3>Status</h3>
 
   <p>The status node tries to show the current state. It can turn red on wrong input and on the "off" state,
-    green on the "on" state and yellow when the on or off counter is running. 
+    green on the "on" state and yellow when the on or off counter is running.
+  </p>
+
+  <p>
+  When you do a fresh deploy and then inject values within the hysteresis region (between on and off thresholds) the Node status will be displayed as "unknown"
+  with a blue dot.
   </p>
 
 </script>
