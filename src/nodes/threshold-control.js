@@ -116,7 +116,9 @@ module.exports = function (RED) {
         counter = 0
       }
 
-      node.status({ fill, shape: 'dot', text: `${desiredState}` })
+      if (!countDown) {
+        node.status({ fill, shape: 'dot', text: `${desiredState}` })
+      }
 
       if (msg.payload >= onThreshold && desiredState !== 'on' && counter === 0) {
         desiredState = 'on'
