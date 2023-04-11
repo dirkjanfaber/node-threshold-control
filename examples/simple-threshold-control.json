@@ -1,0 +1,163 @@
+[
+    {
+        "id": "f12311f3e9b697f4",
+        "type": "threshold-control",
+        "z": "169c3acfa3de2d35",
+        "name": "",
+        "onThreshold": "20",
+        "offThreshold": "10",
+        "onDelay": "0",
+        "offDelay": "5",
+        "x": 550,
+        "y": 360,
+        "wires": [
+            [
+                "1adfbfb7abdd099c"
+            ],
+            [
+                "fc769c0bd4d158b5"
+            ],
+            [
+                "5e86d4a0a58ef539"
+            ]
+        ]
+    },
+    {
+        "id": "8f65959517284d57",
+        "type": "inject",
+        "z": "169c3acfa3de2d35",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 290,
+        "y": 320,
+        "wires": [
+            [
+                "f12311f3e9b697f4"
+            ]
+        ]
+    },
+    {
+        "id": "2f181571cb18bb17",
+        "type": "inject",
+        "z": "169c3acfa3de2d35",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "15",
+        "payloadType": "num",
+        "x": 290,
+        "y": 380,
+        "wires": [
+            [
+                "f12311f3e9b697f4"
+            ]
+        ]
+    },
+    {
+        "id": "aebb9ab3f3541502",
+        "type": "inject",
+        "z": "169c3acfa3de2d35",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 290,
+        "y": 440,
+        "wires": [
+            [
+                "f12311f3e9b697f4"
+            ]
+        ]
+    },
+    {
+        "id": "1adfbfb7abdd099c",
+        "type": "debug",
+        "z": "169c3acfa3de2d35",
+        "name": "output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "fc769c0bd4d158b5",
+        "type": "debug",
+        "z": "169c3acfa3de2d35",
+        "name": "on",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "5e86d4a0a58ef539",
+        "type": "debug",
+        "z": "169c3acfa3de2d35",
+        "name": "off",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 440,
+        "wires": []
+    }
+]

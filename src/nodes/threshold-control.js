@@ -33,9 +33,9 @@ module.exports = function (RED) {
           })
         }
         if (desiredState === 'on') {
-          node.send([null, { counter }, null])
+          node.send([null, { payload: counter }, null])
         } else {
-          node.send([null, null, { counter }])
+          node.send([null, null, { payload: counter }])
         }
         if (counter > 0) {
           counter--
