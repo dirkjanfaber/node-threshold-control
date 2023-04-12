@@ -5,7 +5,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config)
 
     const node = this
-    node.config = config;
+    node.config = config
     let sendOutput = false
     let countDown = false
     let counter = 0
@@ -44,12 +44,12 @@ module.exports = function (RED) {
           sendOutput = true
         }
         if (sendOutput) {
-          if (desiredState === 'on' && node.config.payloadOnType !== "nul" ) {
+          if (desiredState === 'on' && node.config.payloadOnType !== 'nul') {
             node.send({
               payload: RED.util.evaluateNodeProperty(node.config.onPayload, node.config.payloadOnType, node)
             })
           }
-          if (desiredState === 'off' && node.config.payloadOffType !== "nul") {
+          if (desiredState === 'off' && node.config.payloadOffType !== 'nul') {
             node.send({
               payload: RED.util.evaluateNodeProperty(node.config.offPayload, node.config.payloadOffType, node)
             })
