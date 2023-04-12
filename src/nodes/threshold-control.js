@@ -34,9 +34,9 @@ module.exports = function (RED) {
           })
         }
         if (desiredState === 'on') {
-          node.send([null, { payload: counter }, null])
+          node.send([null, { payload: counter, blink: counter % 2 }, null])
         } else {
-          node.send([null, null, { payload: counter }])
+          node.send([null, null, { payload: counter, blink: counter % 2 }])
         }
         if (counter > 0) {
           counter--
@@ -81,11 +81,12 @@ module.exports = function (RED) {
         offThreshold = msg.offThreshold
       }
 
-      if (msg.onDelay && Number(msg.onDelay)) {
+      if (msg.onDelay === 0 || Number(msg.onDelay)) {
         onDelay = msg.onDelay
+        node.warn(onDelay)
       }
 
-      if (msg.offDelay && Number(msg.offDelay)) {
+      if (msg.offDelay === 0 || Number(msg.offDelay)) {
         offDelay = msg.offDelay
       }
 

@@ -47,6 +47,8 @@ The second output gives the state of the counter for the on delay.
 
 The third output gives the state of the couter for the off delay.
 
+Both second and third outputs also publish a `msg.blink` that is `0` or `1` when the counter is even or odd.
+
 ## Status
 
 The status node tries to show the current state. It can turn red on wrong input
