@@ -1,6 +1,6 @@
 {
   "name": "node-threshold-control",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Treshold control",
   "main": "index.js",
   "scripts": {
