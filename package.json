@@ -1,7 +1,7 @@
 {
   "name": "node-threshold-control",
   "version": "0.0.8",
-  "description": "Treshold control",
+  "description": "Threshold control",
   "main": "index.js",
   "scripts": {
     "test": "standard --fix"
