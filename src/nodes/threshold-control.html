@@ -17,6 +17,10 @@
         color: '#f7ab3e',
         defaults: {
             name: {value: ""},
+            onPayload: {value: true, validate:RED.validators.typedInput('payloadOnType')},
+            payloadOnType: {value: 'bool'},
+            offPayload: {value: false, validate:RED.validators.typedInput('payloadOffType')},
+            payloadOffType: {value: 'bool'},
             onThreshold: {value: "", validate:RED.validators.number()},
             offThreshold: {value: "", validate:RED.validators.number()},
             onDelay: {value: 5, validate:validatePositiveNumber},
@@ -27,6 +31,21 @@
         icon: "victronenergy.svg",
         label: function() {
             return this.name||"Threshold control";
+        },
+        oneditprepare: function() {
+          var optionNothing = { value: "nul", label: "Nothing", hasValue: false};
+
+          $('#node-input-onPayload').typedInput({
+            default: 'bool',
+            typeField: $("#node-input-payloadOnType"),
+            types: ['str','num','bool','json','bin','re','date','env', optionNothing]
+          });
+
+          $('#node-input-offPayload').typedInput({
+            default: 'bool',
+            typeField: $("#node-input-payloadOffType"),
+            types: ['msg','str','num','bool','json','bin','re','date','env', optionNothing]
+          });
         }
     });
 </script>
@@ -35,6 +54,16 @@
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+      <label for="node-input-onPayload"><i class="fa fa-tag"></i> On payload</label>
+      <input style="width:70%" type="text" id="node-input-onPayload">
+      <input type="hidden" id="node-input-payloadOnType">
+    </div>
+    <div class="form-row">
+      <label for="node-input-offPayload"><i class="fa fa-tag"></i> Off payload</label>
+      <input style="width:70%" type="text" id="node-input-offPayload">
+      <input type="hidden" id="node-input-payloadOffType">
     </div>
     <div class="form-row">
         <label for="node-input-onThreshold"><i class="fa fa-id-card"></i> On threshold</label>
@@ -64,10 +93,12 @@
   <p>There are a few values that need configuration before the node can be used:</p>
 
   <ul>
-    <li>On threshold - As soon as this threshold gets passed by <tt>msg.payload</tt>, the <i>onDelay</i> counter counts down to zero. If that hass passed, a "on" <tt>msg.payload</tt> gets send to the first output.</i></li>
-    <li>Off threshold - As soon as this threshold gets passed by <tt>msg.payload</tt>, the <i>offDelay</i> counter counts down to zero. If that hass passed, a "off" <tt>msg.payload</tt> gets send to the first output.</i></li>
-    <li>On delay - the delay in seconds that is waited before the output gets send after the input passes the on threshold.</li>
-    <li>Off delay - the delay in seconds that is waited before the output gets send after the input passes the off threshold.</li>
+    <li><i>On output</i> - The <tt>msg.payload</tt> to send when the on threshold get passed (and the counter reaches zero).</li>
+    <li><i>Off output</i> - The <tt>msg.payload</tt> to send when the off threshold get passed (and the counter reaches zero).</li>
+    <li><i>On threshold</i> - As soon as this threshold gets passed by <tt>msg.payload</tt>, the <i>onDelay</i> counter counts down to zero. If that hass passed, a "on" <tt>msg.payload</tt> gets send to the first output.</i></li>
+    <li><i>Off threshold</i> - As soon as this threshold gets passed by <tt>msg.payload</tt>, the <i>offDelay</i> counter counts down to zero. If that hass passed, a "off" <tt>msg.payload</tt> gets send to the first output.</i></li>
+    <li><i>On delay</i> - the delay in seconds that is waited before the output gets send after the input passes the on threshold.</li>
+    <li><i>Off delay</i> - the delay in seconds that is waited before the output gets send after the input passes the off threshold.</li>
   </ul>
 
   <p>The on threshold should be higher than the off threshold.</p>
