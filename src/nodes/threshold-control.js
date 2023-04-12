@@ -15,8 +15,8 @@ module.exports = function (RED) {
 
     let onThreshold = Number(config.onThreshold)
     let offThreshold = Number(config.offThreshold)
-    let onDelay = Number(config.onDelay)
-    let offDelay = Number(config.offDelay)
+    let onDelay = Math.round(Number(config.onDelay))
+    let offDelay = Math.round(Number(config.offDelay))
 
     const intervalId = setInterval(function () {
       if (countDown) {
@@ -82,12 +82,11 @@ module.exports = function (RED) {
       }
 
       if (msg.onDelay === 0 || Number(msg.onDelay)) {
-        onDelay = msg.onDelay
-        node.warn(onDelay)
+        onDelay = Math.round(msg.onDelay)
       }
 
       if (msg.offDelay === 0 || Number(msg.offDelay)) {
-        offDelay = msg.offDelay
+        offDelay = Math.round(msg.offDelay)
       }
 
       if (msg.payload && !Number(msg.payload)) {

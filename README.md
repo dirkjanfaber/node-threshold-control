@@ -27,6 +27,8 @@ There are a few values that need configuration before the node can be used:
 
 The on threshold should be higher than the off threshold.
 
+Note that the delay is in whole seconds. It rounds it to the nearest integer when input is not in whole seconds.
+
 ## Input
 
 By default the node listens to `msg.payload` as input.
