@@ -1,6 +1,8 @@
 module.exports = function (RED) {
   'use strict'
 
+  const { isValidThreshold, shouldCancelCountDown, getNextTransition } = require('../../lib/threshold-logic')
+
   function ThresholdControl (config) {
     RED.nodes.createNode(this, config)
 
@@ -13,10 +15,21 @@ module.exports = function (RED) {
     let State = desiredState
     let fill = 'yellow'
 
-    let onThreshold = Number(config.onThreshold)
-    let offThreshold = Number(config.offThreshold)
+    // Resolved threshold values — updated from context on each input for dynamic types
+    let onThreshold = null
+    let offThreshold = null
+    const onThresholdType = config.onThresholdType || 'num'
+    const offThresholdType = config.offThresholdType || 'num'
     let onDelay = Math.round(Number(config.onDelay))
     let offDelay = Math.round(Number(config.offDelay))
+
+    // For static 'num' type, resolve once at startup
+    if (onThresholdType === 'num') {
+      onThreshold = Number(config.onThreshold)
+    }
+    if (offThresholdType === 'num') {
+      offThreshold = Number(config.offThreshold)
+    }
 
     const intervalId = setInterval(function () {
       if (countDown) {
@@ -73,22 +86,53 @@ module.exports = function (RED) {
     }, 1000)
 
     node.on('input', function (msg) {
-      if (msg.onThreshold && Number(msg.onThreshold)) {
+      // Allow overriding thresholds and delays via message properties (backward compat)
+      const onOverrideFromMsg = msg.onThreshold && Number(msg.onThreshold)
+      const offOverrideFromMsg = msg.offThreshold && Number(msg.offThreshold)
+
+      if (onOverrideFromMsg) {
         onThreshold = msg.onThreshold
       }
-
-      if (msg.offThreshold && Number(msg.offThreshold)) {
+      if (offOverrideFromMsg) {
         offThreshold = msg.offThreshold
       }
-
       if (msg.onDelay === 0 || Number(msg.onDelay)) {
         onDelay = Math.round(msg.onDelay)
       }
-
       if (msg.offDelay === 0 || Number(msg.offDelay)) {
         offDelay = Math.round(msg.offDelay)
       }
 
+      // Resolve onThreshold from its configured type unless overridden by msg
+      const resolveOn = (done) => {
+        if (onOverrideFromMsg) return done()
+        RED.util.evaluateNodeProperty(config.onThreshold, onThresholdType, node, msg, function (err, val) {
+          if (!err && val !== undefined) {
+            onThreshold = val
+          }
+          done()
+        })
+      }
+
+      // Resolve offThreshold from its configured type unless overridden by msg
+      const resolveOff = (done) => {
+        if (offOverrideFromMsg) return done()
+        RED.util.evaluateNodeProperty(config.offThreshold, offThresholdType, node, msg, function (err, val) {
+          if (!err && val !== undefined) {
+            offThreshold = val
+          }
+          done()
+        })
+      }
+
+      resolveOn(() => {
+        resolveOff(() => {
+          processInput(msg)
+        })
+      })
+    })
+
+    function processInput (msg) {
       if (msg.payload && !Number(msg.payload)) {
         node.status({
           fill: 'red',
@@ -98,12 +142,12 @@ module.exports = function (RED) {
         return
       }
 
-      if (!onThreshold || !Number(onThreshold)) {
+      if (!isValidThreshold(onThreshold)) {
         node.status({ fill: 'red', shape: 'dot', text: 'No or non-mumerical ON threshold set' })
         return
       }
 
-      if (!offThreshold || !Number(offThreshold)) {
+      if (!isValidThreshold(offThreshold)) {
         node.status({ fill: 'red', shape: 'dot', text: 'No or non-mumerical OFF threshold set' })
         return
       }
@@ -114,13 +158,7 @@ module.exports = function (RED) {
 
       msg.topic = 'Threshold control'
 
-      if (countDown && desiredState === 'on' && msg.payload < onThreshold) {
-        desiredState = State
-        countDown = false
-        counter = 0
-      }
-
-      if (countDown && desiredState === 'off' && msg.payload > offThreshold) {
+      if (countDown && shouldCancelCountDown(msg.payload, Number(onThreshold), Number(offThreshold), desiredState)) {
         desiredState = State
         countDown = false
         counter = 0
@@ -130,18 +168,13 @@ module.exports = function (RED) {
         node.status({ fill, shape: 'dot', text: `${desiredState}` })
       }
 
-      if (msg.payload >= onThreshold && desiredState !== 'on' && counter === 0) {
-        desiredState = 'on'
-        counter = onDelay
+      const transition = getNextTransition(msg.payload, Number(onThreshold), Number(offThreshold), desiredState, counter)
+      if (transition) {
+        desiredState = transition.desiredState
+        counter = desiredState === 'on' ? onDelay : offDelay
         countDown = true
       }
-
-      if (msg.payload <= offThreshold && desiredState !== 'off' && counter === 0) {
-        desiredState = 'off'
-        counter = offDelay
-        countDown = true
-      }
-    })
+    }
 
     node.on('close', function () {
       clearInterval(intervalId)

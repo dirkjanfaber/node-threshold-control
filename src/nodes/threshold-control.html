@@ -21,8 +21,10 @@
             payloadOnType: {value: 'bool'},
             offPayload: {value: false, validate:RED.validators.typedInput('payloadOffType')},
             payloadOffType: {value: 'bool'},
-            onThreshold: {value: "", validate:RED.validators.number()},
-            offThreshold: {value: "", validate:RED.validators.number()},
+            onThreshold: {value: ""},
+            onThresholdType: {value: "num"},
+            offThreshold: {value: ""},
+            offThresholdType: {value: "num"},
             onDelay: {value: 5, validate:validatePositiveNumber},
             offDelay: {value: 5, validate:validatePositiveNumber}
         },
@@ -46,6 +48,18 @@
             typeField: $("#node-input-payloadOffType"),
             types: ['msg','str','num','bool','json','bin','re','date','env', optionNothing]
           });
+
+          $('#node-input-onThreshold').typedInput({
+            default: 'num',
+            typeField: '#node-input-onThresholdType',
+            types: ['num', 'flow', 'global', 'env', 'json', 'jsonata']
+          });
+
+          $('#node-input-offThreshold').typedInput({
+            default: 'num',
+            typeField: '#node-input-offThresholdType',
+            types: ['num', 'flow', 'global', 'env', 'json', 'jsonata']
+          });
         }
     });
 </script>
@@ -67,11 +81,13 @@
     </div>
     <div class="form-row">
         <label for="node-input-onThreshold"><i class="fa fa-id-card"></i> On threshold</label>
-        <input type="text" id="node-input-onThreshold" placeholder="ON threshold" required>
+        <input type="text" id="node-input-onThreshold">
+        <input type="hidden" id="node-input-onThresholdType">
     </div>
     <div class="form-row">
         <label for="node-input-offThreshold"><i class="fa fa-id-card"></i> Off threshold</label>
-        <input type="text" id="node-input-offThreshold" placeholder="OFF threshold" required>
+        <input type="text" id="node-input-offThreshold">
+        <input type="hidden" id="node-input-offThresholdType">
     </div>
     <div class="form-row">
         <label for="node-input-onDelay"><i class="fa fa-id-card"></i> On delay</label>
