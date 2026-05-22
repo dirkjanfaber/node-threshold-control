@@ -1,11 +1,9 @@
-'use strict'
-
-const {
+import {
   isValidThreshold,
   shouldCancelCountDown,
   getNextTransition,
   getInitialState
-} = require('../lib/threshold-logic')
+} from '../threshold-logic'
 
 describe('threshold-logic', () => {
   describe('isValidThreshold', () => {
