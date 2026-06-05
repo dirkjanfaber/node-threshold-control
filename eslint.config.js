@@ -4,8 +4,8 @@ const neostandard = require('neostandard')
 const globals = require('globals')
 
 module.exports = [
-  { ignores: ['node_modules/**', 'coverage/**'] },
-  ...neostandard(),
+  { ignores: ['node_modules/**', 'coverage/**', 'dist/**'] },
+  ...neostandard({ ts: true }),
   {
     languageOptions: {
       globals: {
