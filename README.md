@@ -5,11 +5,11 @@
 [![Total Downloads](https://img.shields.io/npm/dt/node-threshold-control.svg)](https://www.npmjs.com/package/node-threshold-control)
 [![Package Quality](http://npm.packagequality.com/shield/node-threshold-control.png)](http://packagequality.com/#?package=node-threshold-control)
 [![Open Issues](https://img.shields.io/github/issues-raw/dirkjanfaber/node-threshold-control.svg)](https://github.com/dirkjanfaber/node-threshold-control/issues)
-[![Closed Issues](https://img.shields.io/github/issues-closed-raw/windkh/node-red-contrib-shelly.svg)](https://github.com/dirkjanfaber/node-threshold-control/issues?q=is%3Aissue+is%3Aclosed)
+[![Closed Issues](https://img.shields.io/github/issues-closed-raw/dirkjanfaber/node-threshold-control.svg)](https://github.com/dirkjanfaber/node-threshold-control/issues?q=is%3Aissue+is%3Aclosed)
 
 # Threshold control
 
-With the treshold control you can enable or disable a delayed output when the input
+With the threshold control you can enable or disable a delayed output when the input
 passes the on or off threshold.
 
 ![Threshold control](./images/threshold-control.png)
@@ -20,8 +20,8 @@ There are a few values that need configuration before the node can be used:
 
 * **On payload** - The `msg.payload` to send when the on threshold get passed (and the counter reaches zero).
 * **Off payload** - The `msg.payload` to send when the off threshold get passed (and the counter reaches zero).
-* **On threshold** - As soon as this threshold gets passed by `msg.payload`, the _onDelay_ counter counts down to zero. If that hass passed, a "on" `msg.payload` gets send to the first output._
-* **Off threshold** - As soon as this threshold gets passed by `msg.payload`, the _offDelay_ counter counts down to zero. If that hass passed, a "off" `msg.payload` gets send to the first output.
+* **On threshold** - As soon as this threshold gets passed by `msg.payload`, the _onDelay_ counter counts down to zero. If that has passed, a "on" `msg.payload` gets send to the first output.
+* **Off threshold** - As soon as this threshold gets passed by `msg.payload`, the _offDelay_ counter counts down to zero. If that has passed, a "off" `msg.payload` gets send to the first output.
 * **On delay** - the delay in seconds that is waited before the output gets send after the input passes the on threshold.
 * **Off delay** - the delay in seconds that is waited before the output gets send after the input passes the off threshold.
 
@@ -47,7 +47,7 @@ delay has passed).
 
 The second output gives the state of the counter for the on delay.
 
-The third output gives the state of the couter for the off delay.
+The third output gives the state of the counter for the off delay.
 
 Both second and third outputs also publish a `msg.blink` that is `0` or `1` when the counter is even or odd.
 
@@ -57,6 +57,10 @@ The status node tries to show the current state. It can turn red on wrong input
 and on the "off" state, green on the "on" state and yellow when the on or off
 counter is running.
 
-When you do a fresh deploy and then inject values within the hysteresis region
-(between on and off thresholds) the Node status will be displayed as "unknown"
-with a blue dot.
+On the first received message the node determines its initial state directly
+from the payload, without going through a countdown:
+
+* If the payload is above the on threshold, the state is set to "on" immediately (green).
+* If the payload is below the off threshold, the state is set to "off" immediately (red).
+* If the payload is within the hysteresis region (between the two thresholds), the state
+  remains "unknown" and is shown with a blue dot.
