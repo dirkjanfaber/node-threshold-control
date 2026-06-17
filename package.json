@@ -40,7 +40,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.9.1",
     "@types/node-red": "^1.3.5",
-    "eslint": "^9.0.0",
+    "eslint": "^10.5.0",
     "globals": "^17.6.0",
     "html-minifier-terser": "^7.2.0",
     "jest": "^30.3.0",
