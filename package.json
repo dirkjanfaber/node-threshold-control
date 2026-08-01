@@ -4,9 +4,7 @@
   "description": "Threshold control",
   "main": "dist/threshold-control.js",
   "files": [
-    "dist/threshold-control.js",
-    "dist/threshold-control.html",
-    "dist/icons/",
+    "dist/",
     "examples/"
   ],
   "scripts": {
