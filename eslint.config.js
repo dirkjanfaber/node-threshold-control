@@ -11,7 +11,10 @@ module.exports = [
       globals: {
         ...globals.jest
       }
-    },
+    }
+  },
+  {
+    files: ['**/*.js'],
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
     }

@@ -1,12 +1,10 @@
 {
   "name": "node-threshold-control",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Threshold control",
   "main": "dist/threshold-control.js",
   "files": [
-    "dist/threshold-control.js",
-    "dist/threshold-control.html",
-    "dist/icons/",
+    "dist/",
     "examples/"
   ],
   "scripts": {
@@ -62,6 +60,6 @@
     }
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=20.0.0"
   }
 }
