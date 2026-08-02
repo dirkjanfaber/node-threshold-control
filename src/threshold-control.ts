@@ -1,6 +1,6 @@
 import type NodeRed from 'node-red'
 import { type NodeDef, type Node, type NodeStatusFill, type NodeMessageInFlow } from '@node-red/registry'
-import { isValidThreshold, shouldCancelCountDown, getNextTransition, type DesiredState } from './threshold-logic'
+import { isValidThreshold, shouldCancelCountDown, getNextTransition, getInitialState, type DesiredState } from './threshold-logic'
 
 type NodeAPI = NodeRed.NodeAPI
 
@@ -148,6 +148,14 @@ module.exports = function (RED: NodeAPI) {
       }
 
       if (State === 'unknown') {
+        const initial = getInitialState(Number(msg.payload), Number(onThreshold), Number(offThreshold))
+        if (initial !== 'unknown') {
+          desiredState = initial
+          State = initial
+          fill = initial === 'on' ? 'green' : 'red'
+          node.status({ fill, shape: 'dot', text: `${desiredState}` })
+          return
+        }
         fill = 'blue'
       }
 
