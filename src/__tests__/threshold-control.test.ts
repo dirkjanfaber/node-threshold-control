@@ -50,6 +50,15 @@ function input (node: any, payload: unknown, extras: Record<string, unknown> = {
   node.emit('input', { payload, ...extras })
 }
 
+// Drives the node into a settled on/off state via the normal countdown,
+// then resets the mocks so assertions only see what happens afterwards.
+function settle (node: any, payload: number): void {
+  input(node, payload)
+  jest.advanceTimersByTime(60000)
+  node.send.mockClear()
+  node.status.mockClear()
+}
+
 describe('threshold-control', () => {
   beforeEach(() => {
     jest.useFakeTimers()
@@ -85,31 +94,32 @@ describe('threshold-control', () => {
     })
   })
 
-  describe('initial state', () => {
-    it('sets on immediately when first payload exceeds onThreshold', () => {
-      const node = createNode()
+  describe('first message', () => {
+    it('starts an on countdown when first payload exceeds onThreshold', () => {
+      const node = createNode({ onDelay: '2' })
       input(node, 110)
-      expect(node.status).toHaveBeenCalledWith({ fill: 'green', shape: 'dot', text: 'on' })
       expect(node.send).not.toHaveBeenCalled()
+      jest.advanceTimersByTime(3000)
+      expect(node.send).toHaveBeenCalledWith([null, { payload: 2, blink: 0 }, null])
+      expect(node.send).toHaveBeenCalledWith({ payload: 1 })
+      expect(node.status).toHaveBeenLastCalledWith({ fill: 'green', shape: 'dot', text: 'on' })
     })
 
-    it('sets off immediately when first payload is below offThreshold', () => {
-      const node = createNode()
+    it('starts an off countdown when first payload is below offThreshold', () => {
+      const node = createNode({ offDelay: '2' })
       input(node, 70)
-      expect(node.status).toHaveBeenCalledWith({ fill: 'red', shape: 'dot', text: 'off' })
       expect(node.send).not.toHaveBeenCalled()
+      jest.advanceTimersByTime(3000)
+      expect(node.send).toHaveBeenCalledWith([null, null, { payload: 2, blink: 0 }])
+      expect(node.send).toHaveBeenCalledWith({ payload: 0 })
+      expect(node.status).toHaveBeenLastCalledWith({ fill: 'red', shape: 'dot', text: 'off' })
     })
 
-    it('shows blue unknown status when first payload is between thresholds', () => {
+    it('keeps sending nothing while a first payload between thresholds persists', () => {
       const node = createNode()
       input(node, 90)
       expect(node.status).toHaveBeenCalledWith({ fill: 'blue', shape: 'dot', text: 'unknown' })
-    })
-
-    it('does not start a countdown for the initial state', () => {
-      const node = createNode({ onDelay: '10' })
-      input(node, 110)
-      jest.advanceTimersByTime(15000)
+      jest.advanceTimersByTime(5000)
       expect(node.send).not.toHaveBeenCalled()
     })
   })
@@ -117,7 +127,7 @@ describe('threshold-control', () => {
   describe('state transitions', () => {
     it('starts yellow countdown when payload crosses onThreshold', () => {
       const node = createNode({ onDelay: '5' })
-      input(node, 70)   // initial: off
+      settle(node, 70)
       input(node, 110)  // cross onThreshold; yellow status appears on first tick
       jest.advanceTimersByTime(1000)
       expect(node.status).toHaveBeenCalledWith(
@@ -127,7 +137,7 @@ describe('threshold-control', () => {
 
     it('sends on payload after onDelay expires', () => {
       const node = createNode({ onDelay: '2' })
-      input(node, 70)   // initial: off
+      settle(node, 70)
       input(node, 110)  // trigger countdown (counter=2)
       jest.advanceTimersByTime(3000) // 3 ticks: counter 2→1→0→fire
       expect(node.send).toHaveBeenCalledWith({ payload: 1 })
@@ -135,7 +145,7 @@ describe('threshold-control', () => {
 
     it('sends off payload after offDelay expires', () => {
       const node = createNode({ offDelay: '2' })
-      input(node, 110)  // initial: on
+      settle(node, 110)
       input(node, 70)   // trigger off countdown (counter=2)
       jest.advanceTimersByTime(3000) // 3 ticks: counter 2→1→0→fire
       expect(node.send).toHaveBeenCalledWith({ payload: 0 })
@@ -143,7 +153,7 @@ describe('threshold-control', () => {
 
     it('cancels on countdown when payload drops back below onThreshold', () => {
       const node = createNode({ onDelay: '5' })
-      input(node, 70)   // initial: off
+      settle(node, 70)
       input(node, 110)  // start on countdown
       jest.advanceTimersByTime(2000)
       input(node, 90)   // drops below onThreshold → cancel
@@ -153,7 +163,7 @@ describe('threshold-control', () => {
 
     it('cancels off countdown when payload rises back above offThreshold', () => {
       const node = createNode({ offDelay: '5' })
-      input(node, 110)  // initial: on
+      settle(node, 110)
       input(node, 70)   // start off countdown
       jest.advanceTimersByTime(2000)
       input(node, 90)   // rises above offThreshold → cancel
@@ -163,7 +173,7 @@ describe('threshold-control', () => {
 
     it('updates status to green after on transition completes', () => {
       const node = createNode()
-      input(node, 70)   // initial: off
+      settle(node, 70)
       input(node, 110)  // trigger countdown (counter=0)
       jest.advanceTimersByTime(1000) // 1 tick: counter=0 → fire
       expect(node.status).toHaveBeenCalledWith({ fill: 'green', shape: 'dot', text: 'on' })
@@ -171,7 +181,7 @@ describe('threshold-control', () => {
 
     it('updates status to red after off transition completes', () => {
       const node = createNode()
-      input(node, 110)  // initial: on
+      settle(node, 110)
       input(node, 70)   // trigger countdown (counter=0)
       jest.advanceTimersByTime(1000) // 1 tick: counter=0 → fire
       expect(node.status).toHaveBeenCalledWith({ fill: 'red', shape: 'dot', text: 'off' })
@@ -179,7 +189,7 @@ describe('threshold-control', () => {
 
     it('does not send output when payloadOnType is nul', () => {
       const node = createNode({ payloadOnType: 'nul' })
-      input(node, 70)   // initial: off
+      settle(node, 70)
       input(node, 110)  // trigger countdown
       jest.advanceTimersByTime(1000)
       expect(node.send).not.toHaveBeenCalledWith({ payload: 1 })
@@ -187,7 +197,7 @@ describe('threshold-control', () => {
 
     it('does not send output when payloadOffType is nul', () => {
       const node = createNode({ payloadOffType: 'nul' })
-      input(node, 110)  // initial: on
+      settle(node, 110)
       input(node, 70)   // trigger countdown
       jest.advanceTimersByTime(1000)
       expect(node.send).not.toHaveBeenCalledWith({ payload: 0 })
@@ -197,13 +207,14 @@ describe('threshold-control', () => {
   describe('overrides from message', () => {
     it('uses onThreshold from message', () => {
       const node = createNode()
-      input(node, 90, { onThreshold: 85 })  // 90 > 85 → initial on
+      input(node, 90, { onThreshold: 85 })  // 90 > 85 -> on
+      jest.advanceTimersByTime(1000)
       expect(node.status).toHaveBeenCalledWith({ fill: 'green', shape: 'dot', text: 'on' })
     })
 
     it('uses offThreshold from message', () => {
       const node = createNode()
-      input(node, 110)                          // initial: on
+      settle(node, 110)
       input(node, 110, { offThreshold: 115 })  // 110 <= 115 → off transition
       jest.advanceTimersByTime(1000)
       expect(node.send).toHaveBeenCalledWith({ payload: 0 })
@@ -211,7 +222,7 @@ describe('threshold-control', () => {
 
     it('uses onDelay from message', () => {
       const node = createNode({ onDelay: '10' })
-      input(node, 70)
+      settle(node, 70)
       input(node, 110, { onDelay: 1 })  // override to 1, so 2 ticks needed
       jest.advanceTimersByTime(2000)
       expect(node.send).toHaveBeenCalledWith({ payload: 1 })
@@ -219,7 +230,7 @@ describe('threshold-control', () => {
 
     it('uses offDelay from message', () => {
       const node = createNode({ offDelay: '10' })
-      input(node, 110)
+      settle(node, 110)
       input(node, 70, { offDelay: 1 })  // override to 1
       jest.advanceTimersByTime(2000)
       expect(node.send).toHaveBeenCalledWith({ payload: 0 })

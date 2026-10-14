@@ -57,10 +57,7 @@ The status node tries to show the current state. It can turn red on wrong input
 and on the "off" state, green on the "on" state and yellow when the on or off
 counter is running.
 
-On the first received message the node determines its initial state directly
-from the payload, without going through a countdown:
-
-* If the payload is above the on threshold, the state is set to "on" immediately (green).
-* If the payload is below the off threshold, the state is set to "off" immediately (red).
-* If the payload is within the hysteresis region (between the two thresholds), the state
-  remains "unknown" and is shown with a blue dot.
+The node starts in the "unknown" state (blue dot). The first payload that is above
+the on threshold or below the off threshold starts the normal countdown, after
+which the "on" or "off" payload is sent. A payload within the hysteresis region
+(between the two thresholds) leaves the state "unknown".
